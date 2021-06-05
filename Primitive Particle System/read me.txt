@@ -1,0 +1,21 @@
+// Credits //
+This Primitive Particle System (PPS), along with graphMaker and saveMaker were made by Sharp-Shark!
+Primitive Particle System aka Particle Life.
+
+I was inspired by :
+	http://www.ventrella.com/Clusters/
+	https://youtu.be/Z_zmZ23grXE
+	And [More Stuff about Particle Life]
+
+Thanks for the people over at Dani's Basement for helping with some of the math, it wouldn't have been possible to make this mediocre project.
+Wishlist Karlson on Steam!
+Dani's Youtube: https://www.youtube.com/c/DaniDev
+Dani's Discord: https://discord.com/invite/dani
+Karlson: https://store.steampowered.com/app/1228610/KARLSON/
+
+// More Info //
+Use "graphMaker.py" to Visualize a Particle's Relations.
+Use "saveMaker.py" to Create a Empty-ish Save File.
+Use "PPS.py" to Run your Save Files.
+If you used the standart format on your Save Files, you can just run them, like any Python File.
+If you're confident, you can change PPS directly.
