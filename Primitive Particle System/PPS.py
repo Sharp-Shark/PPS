@@ -1,4 +1,4 @@
-saveFile = 'none'
+saveFile = 'none'; original='pps'
 ''''''
 # Imports
 ''''''
@@ -8,6 +8,7 @@ import time
 import math
 canvas = turtle.getcanvas()
 wait = time.sleep
+turtle.title('PPS - Primitive Particle System')
 ''''''
 # Variables
 ''''''
@@ -23,6 +24,7 @@ if saveFile == 'none' :
     exec('PPS = True\n#'+open(loadFrom,'r').read())
     print('[FILE '+loadFrom+']\n'+'PPS = True\n#'+open(loadFrom,'r').read()+'\n[FILE END]')
     print('Running from Simulator')
+    saveFile = 'pps'
 else :
     print('Running from Settings')
 
@@ -35,6 +37,14 @@ average_fpsS = 0 #S for Speed
 ''''''
 # Objects
 ''''''
+def numTo0 (x) :
+    if x > 0 :
+        return 1
+    elif x < 0 :
+        return -1
+    else :
+        return 0
+
 def normPlus (x,y) : #Normalize and A Bit More
     magged = mag(x,y)
     return care_div(x, magged) - care_div(y, magged)
@@ -48,7 +58,7 @@ def mag (x,y) : #Magnitude
 
 def care_div (a,b) : # careful division
     if a==0 or b==0 :
-        return 0
+        return 1
     else :
         return a/b
 
@@ -63,6 +73,7 @@ def Min (n,m) :
         return n
     else :
         return m
+Cap = Min
 
 def tPrint (txt='',pos=(0,0),size=21) : #Prints to screen
     turtle.color('lightgray')
@@ -84,72 +95,28 @@ def drawTheLine () :
 def root (n,r=2) :
     return n**(1/r)
 
-def distance (corA,corB) : #cor as in coords
-    return math.sqrt( (corA[0]-corB[0])**2 + (corA[1]-corB[1])**2 )
+def vWrap (cor) : #cor as in coords, screen-wraps a Vector
+    #return [ Min((300 - abs(cor[0])), 300) * numTo0(cor[0]) * -1 , Min((300 - abs(cor[1])), 300) * numTo0(cor[1]) * -1 ]
+    #return [(cor[0] + 450) % 300 - 150, (cor[1] + 450)% 300 - 150]
+    return [((((cor[0] + 150) % 300) + 150) % 300) - 150, ((((cor[1] + 150) % 300) + 150) % 300) - 150]
+
+def distance (corA,corB,wrap=world['screen_wrap']) : #cor as in coords
+    #Screen Wrapping
+    if wrap :
+        if distance(vWrap(corA), vWrap(corB), False) < distance(corA, corB, False) :
+            corA_ = vWrap(corA)
+            corB_ = vWrap(corB)
+        else :
+            corA_ = corA
+            corB_ = corB
+    else :
+        corA_ = corA
+        corB_ = corB
+    #Actual Distance Formula
+    return math.sqrt( (corA_[0]-corB_[0])**2 + (corA_[1]-corB_[1])**2 )
 
 def force (distance,mult,strength=50,offset=100,window=2,shape=1) :
     return world['force_cont']/(distance**2) + (mult * max(1 / distance, strength - abs(distance*window*strength - offset*window)**shape))
-#GRAPH TOOL FOR TESTING
-if 1==0 :
-    graph_scale = 20
-    graph_zoom = 100
-    results = []
-    for loop in range(1,math.floor(1333/graph_scale)) :
-        results.append(force(loop/graph_scale, -2, 10, 30, 3, 1))
-    #turtle setup
-    turtle.title('PPS - Primitive Particle System')
-    turtle.bgcolor('black')
-    turtle.tracer(0, 0)
-    turtle.penup()
-    turtle.hideturtle()
-    turtle.speed(0)
-    turtle.pensize(5)
-    #graph
-    counter=0
-    turtle.setheading(0)
-    turtle.clear()
-    drawTheLine()
-    for r in results :
-        turtle.goto(counter*graph_scale-667,0)
-        if counter == 0 :
-            turtle.color('limegreen')
-        elif r < 0 :
-            if r > results[counter-1] :
-                turtle.color('orange')
-            elif r < results[counter-1] :
-                turtle.color('red')
-            else :
-                turtle.color('orangered')
-        elif r > 0 :
-            if r > results[counter-1] :
-                turtle.color('cyan')
-            elif r < results[counter-1] :
-                turtle.color('blue')
-            else :
-                turtle.color('royalblue')
-        else :
-            turtle.color('purple')
-        turtle.setheading(0)
-        turtle.goto(counter*graph_scale-667,r*3)
-        turtle.pendown()
-        if counter < len(results)-1 :
-            turtle.goto((counter+1)*graph_scale-667,(results[counter+1])*3)
-        turtle.penup()
-        if counter%5==0 :
-            tPrint(range(1,math.floor(1333/graph_scale))[counter],(counter*graph_scale-657,Max(20,r*3+20)),6)
-            tPrint(round(r),(counter*graph_scale-657,Max(10,r*3+10)),6)
-            turtle.pensize(1)
-            turtle.color('white')
-            turtle.goto(counter*graph_scale-667,1000)
-            turtle.pendown()
-            turtle.goto(counter*graph_scale-667,-1000)
-            turtle.penup()
-            turtle.pensize(5)
-        counter += 1
-    turtle.update()
-    print('DONE')
-    turtle.done()
-#GRAPH TOOL FOR TESTING
 
 class particle (object) : #particle object
     def __init__ (self,x=0,y=0,color=available_colors,index = 0) :
@@ -184,37 +151,65 @@ class particle (object) : #particle object
         #Loop over each particle to interact
         for p in particles :
             #Calculate distance to current target
-            #d = distance([self.x, p.x],[self.y, p.y])
-            d = math.sqrt( (self.x - p.x)**2 + (self.y - p.y)**2 )
+            d = distance([self.x, self.y],[p.x, p.y])
             #Checks if he isn't interacting with himself
-            if (self.index != count) and d!=0.0 :
+            if (self.index != count) and d>0 :
                 #Physics ;-;
-                if d>0 :
-                    self.velX *= -1
-                    self.velY *= -1
-                    p.velX *= -1
-                    p.velY *= -1
-                    xForce += (normPlus(self.x, p.x) * (force(d, self.relations[p.color], other[1], other[2], other[3], other[4]))) / (d * world['dist_decay'])
-                    yForce += (normPlus(self.y, p.y) * (force(d, self.relations[p.color], other[1], other[2], other[3], other[4]))) / (d * world['dist_decay'])
+                self.velX *= -1
+                self.velY *= -1
+                p.velX *= -1
+                p.velY *= -1
+                xForce += (normPlus(self.x, p.x) * (force(d, self.relations[p.color], other[1], other[2], other[3], other[4]))) / (d * world['dist_decay'])
+                yForce += (normPlus(self.y, p.y) * (force(d, self.relations[p.color], other[1], other[2], other[3], other[4]))) / (d * world['dist_decay'])
             count += 1
-        #Adding force to velocity, and subtracting friction 
+        #Adding force to velocity, and subtracting friction
         self.velX = self.velX*other[0] + (xForce * world['force_mult'])
         self.velY = self.velY*other[0] + (yForce * world['force_mult'])
-        self.x += self.velX
-        self.y += self.velY
         #What to do if a particle hits the border
-        if abs(self.x) > 300 :
-            self.x = 300 * (self.x/abs(self.x))
-            self.velX *= -1
-        if abs(self.y) > 300 :
-            self.y =  300 * (self.y/abs(self.y))
-            self.velY *= -1
+        if not world['screen_wrap'] : #Just Collide
+            self.x += self.velX
+            self.y += self.velY
+            if abs(self.x) > 300 :
+                self.x = 300 * (self.x/abs(self.x))
+                self.velX *= -1
+            if abs(self.y) > 300 :
+                self.y =  300 * (self.y/abs(self.y))
+                self.velY *= -1
+        else : #Wrap Around Screen
+            if (abs(self.x + self.velX) > 300) or (abs(self.y + self.velY) > 300) :
+                oldVX = self.velX
+                oldVY = self.velY
+                self.velX = Min(300 - abs(self.x), abs(self.velX)) * numTo0(self.velX)
+                self.velY = Min(300 - abs(self.y), abs(self.velY)) * numTo0(self.velY)
+                self.x += self.velX
+                self.y += self.velY
+                self.x *= -1
+                self.y *= -1
+                self.x += oldVX - self.velX
+                self.y += oldVY - self.velY
+                if abs(self.x)>300 or abs(self.y)>300 :
+                    if original=='pps' :
+                        logFile = open('log.txt','a')
+                    else :
+                        logFile = open(original+'_log.txt','a')
+                    logText = 'BIG BOI\n  X:'+str(self.x)+';\n  Y:'+str(self.y)+';\n'
+                    logFile.write(logText)
+                    logFile.close()
+                    print(logText)
+                    #'a'+1
+            else :
+                self.x += self.velX
+                self.y += self.velY
+            #'''
         #Calls the "render()" method
         self.render()
 ''''''
 # Pre-Loop
 ''''''
-turtle.title('PPS - Primitive Particle System')
+if saveFile == 'pps' :
+    turtle.title('PPS/'+loadFrom)
+else :
+    turtle.title('PPS/'+saveFile)
 turtle.bgcolor('black')
 turtle.tracer(0, 0)
 turtle.penup()
@@ -223,7 +218,7 @@ turtle.speed(0)
 turtle.pensize(10)
 
 #generate particles
-for i in range(0,50) :
+for i in range(0,world['amount_min']) :
     particles.append(particle(random(-150,150),random(-150,150)))
 #render screen, uses particle.render, not particle.routine()
 drawTheLine()
@@ -249,7 +244,7 @@ for i in range(0,50000) :
     #print('FPS '+str( math.floor( 1/delay ) ) + ', or '+str(math.floor(delay*100000)/100)+'ms')
     average_fpsA = (average_fpsA* ( 1/(tick+1) ) ) + ((1/delay)* ( 1-(1/(tick+1)) ) )
     average_fpsS = (average_fpsS* 0.9 ) + ((1/delay)* 0.1 )
-    if average_fpsS > 35 and tick>100 and tick%10==0 :
+    if average_fpsS > 35 and len(particles)-1 < world['amount_max'] and tick%25==0 :
         particles.append(particle(random(-150,150),random(-150,150)))
     tick += 1
 ''''''

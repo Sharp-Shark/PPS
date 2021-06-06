@@ -140,7 +140,10 @@ relations_table = {'pur':{'pur':rng(-100,100)/100,
 
 world = {'dist_decay':1,
          'force_mult':rng(180,240),
-         'force_cont':rng(50,60)/10}
+         'force_cont':rng(50,60)/10,
+         'amount_min':50,
+         'amount_max':999,
+         'screen_wrap':False}
 
 '''
 All Accepted Render Colors can be found at :
@@ -150,6 +153,6 @@ All Render Values have to be one of those Colors.
 '''
 
 if not PPS :
-    original = 'new'
+    original = 'randomized'
     print('[FILE ../PPS.py]saveFile = "saves/'+original+'"#'+open('../PPS.py','r').read()+'[FILE END]')
     exec('saveFile = "saves/'+original+'.py"#'+open('../PPS.py','r').read())
