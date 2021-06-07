@@ -62,6 +62,9 @@ def care_div (a,b) : # careful division
     else :
         return a/b
 
+def care_abs (n) :
+    return n * numTo0(n)
+
 def Max (n,m) :
     if n>m :
         return n
@@ -176,30 +179,10 @@ class particle (object) : #particle object
                 self.y =  300 * (self.y/abs(self.y))
                 self.velY *= -1
         else : #Wrap Around Screen
-            if (abs(self.x + self.velX) > 300) or (abs(self.y + self.velY) > 300) :
-                oldVX = self.velX
-                oldVY = self.velY
-                self.velX = Min(300 - abs(self.x), abs(self.velX)) * numTo0(self.velX)
-                self.velY = Min(300 - abs(self.y), abs(self.velY)) * numTo0(self.velY)
-                self.x += self.velX
-                self.y += self.velY
-                self.x *= -1
-                self.y *= -1
-                self.x += oldVX - self.velX
-                self.y += oldVY - self.velY
-                if abs(self.x)>300 or abs(self.y)>300 :
-                    if original=='pps' :
-                        logFile = open('log.txt','a')
-                    else :
-                        logFile = open(original+'_log.txt','a')
-                    logText = 'BIG BOI\n  X:'+str(self.x)+';\n  Y:'+str(self.y)+';\n'
-                    logFile.write(logText)
-                    logFile.close()
-                    print(logText)
-                    #'a'+1
-            else :
-                self.x += self.velX
-                self.y += self.velY
+            self.x += self.velX
+            self.y += self.velY
+            self.x -= (300*( (self.x * numTo0(self.x)) // 300 )) * numTo0(self.x)
+            self.y -= (300*( (self.y * numTo0(self.y)) // 300 )) * numTo0(self.y)
             #'''
         #Calls the "render()" method
         self.render()

@@ -49,7 +49,7 @@ world = {'dist_decay':1,
          'force_cont':6,
          'amount_min':50,
          'amount_max':999,
-         'screen_wrap':False}
+         'screen_wrap':True}
 
 '''
 All Accepted Render Colors can be found at :
