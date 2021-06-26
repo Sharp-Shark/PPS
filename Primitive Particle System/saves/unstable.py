@@ -77,8 +77,8 @@ relations_table = {'red':{'red':2,
 world = {'dist_decay':1,
          'force_mult':100,
          'force_cont':10,
-         'particles':50,
-         'desired_fps':30,
+         'particles':60,
+         'desired_fps':35,
          'pen_thickness':6,
          'screen_wrap':True}
 

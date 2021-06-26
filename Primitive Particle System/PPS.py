@@ -107,9 +107,9 @@ def root (n,r=2) :
     return n**(1/r)
 
 def vWrap (cor) : #cor as in coords, screen-wraps a Vector
-    #return [ min((300 - abs(cor[0])), 300) * numTo0(cor[0]) * -1 , min((300 - abs(cor[1])), 300) * numTo0(cor[1]) * -1 ]
+    return [ min((300 - abs(cor[0])), 300) * numTo0(cor[0]) * -1 , min((300 - abs(cor[1])), 300) * numTo0(cor[1]) * -1 ]
     #return [(cor[0] + 450) % 300 - 150, (cor[1] + 450)% 300 - 150]
-    return [((((cor[0] + 150) % 300) + 150) % 300) - 150, ((((cor[1] + 150) % 300) + 150) % 300) - 150]
+    #return [((((cor[0] + 150) % 300) + 150) % 300) - 150, ((((cor[1] + 150) % 300) + 150) % 300) - 150]
 
 def distance (corA,corB,wrap=world['screen_wrap']) : #cor as in coords
     #Screen Wrapping
@@ -159,7 +159,7 @@ class particle (object) : #particle object
         xForce, yForce = 0, 0
         count = 0
         #Loop over each particle to interact
-        for p in particles :
+        for p in old_particles :
             #Calculate distance to current target
             d = distance([self.x, self.y],[p.x, p.y])
             #Checks if he isn't interacting with himself
@@ -224,6 +224,7 @@ for p in particles :
 turtle.update()
 wait(1)
 desired_fps = world['desired_fps']
+#desired_fps = int(turtle.textinput('Target FPS', 'Enter Target FPS.'))
 #Main Loop (For Testing)
 while LOOP :
     #for timing how long each cycle took
@@ -233,6 +234,7 @@ while LOOP :
     #draws a dot at center
     drawTheLine()
     #cycles through each particle
+    old_particles = particles
     for step in range(0,max(1,round(average_fps* (1/desired_fps) ))) :
         for P in particles :
             P.routine()

@@ -142,7 +142,7 @@ world = {'dist_decay':1,
          'force_mult':rng(100,250),
          'force_cont':rng(50,100)/10,
          'particles':rng(40,80),
-         'desired_fps':30,
+         'desired_fps':35,
          'pen_thickness':rng(6,8),
          'screen_wrap':rng(0,1)}
 
@@ -152,6 +152,11 @@ http://cng.seas.rochester.edu/CNG/docs/x11color.html
 
 All Render Values have to be one of those Colors.
 '''
+
+print('\nAbout this Setting :\n-> Available Colors Variable <-\n'+str(available_colors))
+print('\n-> Render Colors Variable <-\n'+str(render_colors))
+print('\n-> Relations Table Variable <-\n'+str(relations_table))
+print('\n-> World Variable <-\n'+str(world)+'\n')
 
 if not PPS :
     original = 'randomized'
